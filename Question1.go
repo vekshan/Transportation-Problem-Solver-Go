@@ -56,15 +56,32 @@ func steppingStone(problem *[][] Cell, m int, n int) {
 
 	wg.Wait()
 
-	var minCostPath Path
+	var optimalPath Path
 	for k:=0 ; k <chanSize; k++{
 		path:= <- result
-		if path.cost < minCostPath.cost {
-			minCostPath = path
+		if path.cost < optimalPath.cost {
+			optimalPath = path
 		}
 	}
 
-	fmt.Println(minCostPath)
+	allocation := 9999999
+	for _,elem := range optimalPath.cells{
+		if elem.quantity < allocation && elem.quantity != 0{
+			allocation = elem.quantity
+		}
+	}
+	if allocation == 9999999 {
+		return
+	}
+	for p:=0; p < len(optimalPath.cells); p++{
+		if p % 2 == 0 {
+			(*problem)[optimalPath.cells[p].factory][optimalPath.cells[p].warehouse].quantity += allocation
+		}else{
+			(*problem)[optimalPath.cells[p].factory][optimalPath.cells[p].warehouse].quantity -= allocation
+		}
+	}
+
+	steppingStone(problem,m,n)
 
 }
 
@@ -216,7 +233,7 @@ func main() {
 
 	var fileName string
 
-	fmt.Print("Enter cost file: ")
+	fmt.Print("Enter name of cost file: ")
 	fmt.Scan(&fileName)
 	fmt.Println()
 	file ,err := os.Open(fileName)
@@ -254,7 +271,7 @@ func main() {
 
 
 	var fileName1 string
-	fmt.Print("Enter initial solution file: ")
+	fmt.Print("Enter name of initial solution file: ")
 	fmt.Scan(&fileName1)
 	fmt.Println()
 	initialFile, err1 := os.Open(fileName1)
@@ -300,6 +317,8 @@ func main() {
 
 
 	steppingStone(&problem,m,n)
+
+	fmt.Println(problem)
 
 
 
