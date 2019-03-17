@@ -65,8 +65,8 @@ func steppingStone(problem *[][] Cell, m int, n int) {
 	}
 
 	allocation := 9999999
-	for _,elem := range optimalPath.cells{
-		if elem.quantity < allocation && elem.quantity != 0{
+	for s,elem := range optimalPath.cells{
+		if elem.quantity < allocation && elem.quantity != 0 && s%2 !=0{
 			allocation = elem.quantity
 		}
 	}
@@ -81,6 +81,7 @@ func steppingStone(problem *[][] Cell, m int, n int) {
 		}
 	}
 
+	fmt.Println(*problem)
 	steppingStone(problem,m,n)
 
 }
@@ -316,9 +317,10 @@ func main() {
 	}
 
 
+	fmt.Println(problem)
+
 	steppingStone(&problem,m,n)
 
-	fmt.Println(problem)
 
 
 
