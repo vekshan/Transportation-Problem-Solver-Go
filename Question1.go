@@ -81,7 +81,7 @@ func steppingStone(problem *[][] Cell, m int, n int) {
 		}
 	}
 
-	fmt.Println(*problem)
+	fmt.Println("After Stepping Stone", *problem)
 	steppingStone(problem,m,n)
 
 }
@@ -275,19 +275,21 @@ func main() {
 	fmt.Print("Enter name of initial solution file: ")
 	fmt.Scan(&fileName1)
 	fmt.Println()
-	initialFile, err1 := os.Open(fileName1)
+	initialFile, err := os.Open(fileName1)
 
-	if err1 != nil {
-		panic(err1)
+	if err != nil {
+		panic(err)
 	}
 	defer initialFile.Close()
 
 	scannerCost := bufio.NewScanner(costFile)
 	scannerCost.Scan()
+	top:=scannerCost.Text()
 
 	scannerInitial := bufio.NewScanner(initialFile)
 	scannerInitial.Scan()
 
+	side := make([]string, m)
 	for i:= 0; i < m ; i++{
 		scannerCost.Scan()
 		scannerInitial.Scan()
@@ -297,6 +299,7 @@ func main() {
 
 		row1 := strings.Split(scannerInitial.Text(), " ")
 
+		side[i] = row[0]
 		supply[i] = temp
 		for j:= 0; j < n; j++{
 			problem[i][j].cost,_ = strconv.Atoi(row[j+1])
@@ -311,18 +314,51 @@ func main() {
 		}
 	}
 	scannerCost.Scan()
-	row := strings.Split(scannerCost.Text(), " ")
+	bottom :=scannerCost.Text()
+	row := strings.Split(bottom, " ")
 	for j:= 0; j < n; j++{
 		demand[j],_ = strconv.Atoi(row[j+1])
 	}
 
 
-	fmt.Println(problem)
+	fmt.Println("Initial Solution", problem)
 
 	steppingStone(&problem,m,n)
 
+	optimalCost:=0
+	for i:=0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			optimalCost += problem[i][j].quantity * problem[i][j].cost
+		}
 
+	}
 
+	fmt.Printf("Optimal Cost: %d" , optimalCost)
+
+	solFile, err := os.Create("solution.txt")
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Fprintln(solFile,top)
+
+	for i:=0; i < m; i++ {
+		str := side[i]
+		for j :=0; j < n; j++{
+			str += " " + strconv.Itoa(problem[i][j].quantity)
+		}
+		str += " " + strconv.Itoa(supply[i])
+		fmt.Fprintln(solFile,str)
+	}
+
+	fmt.Fprintln(solFile,bottom)
+	fmt.Fprintln(solFile,"Optimal Cost: " + strconv.Itoa(optimalCost))
+
+	solFile.Close()
+
+	fmt.Println()
+	fmt.Println("Check for solution.txt file in current folder.")
 
 
 
